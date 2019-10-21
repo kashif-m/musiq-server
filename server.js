@@ -1,8 +1,11 @@
 
+const axios = require('axios')
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
+
+const spotify = require('./config/keys').spotify
 
 const app = express()
 app.use(cors())
@@ -18,6 +21,18 @@ mongoose
   .catch(err => console.log(err))
 
 // routes
+app.get('/token', (req, res) => {
+
+  const auth = Buffer.from(`${spotify.clientID}:${spotify.clientSecret}`).toString('base64')
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': `Basic ${auth}`
+  }
+  const grant_type = 'client_credentials'
+  axios.post('https://accounts.spotify.com/api/token', null, {headers, params: {grant_type}})
+    .then(spotifyRes => res.json(spotifyRes.data))
+    .catch(err => res.json(err.response.data))
+})
 const userRoutes = require('./routes/user')
 app.use('/user', userRoutes)
 
