@@ -21,7 +21,6 @@ router.post('/new', (req, res) => {
 
   User.findOne({username: user.username})
     .then(user => {
-      console.log(user)
       if(user)
         return res.json({err: 'Already exists.'})
 

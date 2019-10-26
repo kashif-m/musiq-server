@@ -21,15 +21,21 @@ mongoose
   .catch(err => console.log(err))
 
 // routes
-app.get('/token', (req, res) => {
+app.post('/token', (req, res) => {
 
+  const {code} = req.body
   const auth = Buffer.from(`${spotify.clientID}:${spotify.clientSecret}`).toString('base64')
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     'Authorization': `Basic ${auth}`
   }
-  const grant_type = 'client_credentials'
-  axios.post('https://accounts.spotify.com/api/token', null, {headers, params: {grant_type}})
+  const grant_type = 'authorization_code'
+  axios.post('https://accounts.spotify.com/api/token', null, {headers,
+    params: {
+      grant_type,
+      code,
+      redirect_uri: 'http://localhost:8080'
+    }})
     .then(spotifyRes => res.json(spotifyRes.data))
     .catch(err => res.json(err.response.data))
 })
