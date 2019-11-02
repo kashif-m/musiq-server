@@ -2,7 +2,6 @@
 const bcrypt = require('bcryptjs')
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose')
 const SECRET_KEY = require('../config/keys').SECRET_KEY
 
 const User = require('../models/User')
@@ -23,7 +22,6 @@ router.post('/new', (req, res) => {
     .then(user => {
       if(user)
         return res.json({err: 'Already exists.'})
-
 
       bcrypt.genSalt(10)
         .then(salt => {      
