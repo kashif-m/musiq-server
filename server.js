@@ -6,8 +6,6 @@ const express = require('express')
 const mongoose = require('mongoose')
 const passport = require('passport')
 
-const spotify = require('./config/keys').spotify
-
 const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -26,33 +24,14 @@ mongoose
   .catch(err => console.log(err))
 
 // routes
-app.post('/token', (req, res) => {
-
-  const {code, grant_type, refresh_token} = req.body
-  const auth = Buffer.from(`${spotify.clientID}:${spotify.clientSecret}`).toString('base64')
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': `Basic ${auth}`
-  }
-  console.log(grant_type, code, refresh_token)
-  axios.post('https://accounts.spotify.com/api/token', null, {headers,
-    params: {
-      grant_type,
-      refresh_token,
-      code,
-      redirect_uri: 'http://localhost:8080'
-    }})
-    .then(spotifyRes => {
-      res.json(spotifyRes.data)
-      console.log(spotifyRes.data)
-    })
-    .catch(err => res.json(err.response.data))
-})
-
+const appRoutes = require('./routes/app')
+const localRoutes = require('./routes/local-music')
 const userRoutes = require('./routes/user')
 const userDataRoutes = require('./routes/user-data')
 app.use('/user', userRoutes)
 app.use('/user-data', userDataRoutes)
+app.use('/local', localRoutes)
+app.use('/', appRoutes)
 
 // host
 const port = process.env.PORT || 5000
