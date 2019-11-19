@@ -2,20 +2,22 @@
 const dirTree = require("directory-tree")
 const mmm = require('music-metadata')
 
-const getFilteredTree = (path = []) => {
-	dirTree("/Users/apple/Downloads",
+const getFilteredTree = (path = "/Users/apple/Downloads") => {
+
+	let pathArr = []
+	const regExp = /(^\..{2,}$|node_modules|bower_components|[lL]ib(rary){0,1}|Documents)/
+	dirTree(path,
 	{
 		extensions: /^\.(mp3|flac)$/,
-		exclude: /(^\..{2,}$|node_modules)/
-	}, (item, PATH, stats) => {
-		// console.log(item.path)
-		path.push(item.path)
-	})
+		exclude: regExp
+	}, (item, PATH, stats) =>
+		pathArr.push(item.path)
+	)
 
-	return path
+	return pathArr
 }
 
-const getMetadata = async (pathArr = filteredTree(), metadata = [], err = []) => {
+const getMetadata = async (pathArr = getFilteredTree(), metadata = [], err = []) => {
 	for (const path of pathArr) {
 		let mt = false, _err = false
 		try {
@@ -28,5 +30,7 @@ const getMetadata = async (pathArr = filteredTree(), metadata = [], err = []) =>
 	}
 	return {metadata, err}
 }
+
+console.log(getFilteredTree())
 
 module.exports = {getFilteredTree, getMetadata}
