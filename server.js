@@ -17,7 +17,7 @@ require('./config/passport')(passport)
 
 // connection to database
 mongoose.set('useFindAndModify', false)
-const db = require('./config/keys.js').mongoURI
+const db = require('./config/keys.js').mongoLocalURI
 mongoose
   .connect(db, {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('Connected to mongoDB.'))

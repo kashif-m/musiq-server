@@ -31,6 +31,4 @@ const getMetadata = async (pathArr = getFilteredTree(), metadata = [], err = [])
 	return {metadata, err}
 }
 
-console.log(getFilteredTree())
-
 module.exports = {getFilteredTree, getMetadata}

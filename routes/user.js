@@ -2,8 +2,9 @@
 const bcrypt = require('bcryptjs')
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const SECRET_KEY = require('../config/keys').SECRET_KEY
+const validator = require('validator')
 
+const SECRET_KEY = require('../config/keys').SECRET_KEY
 const User = require('../models/User')
 const UserData = require('../models/UserData')
 
@@ -16,39 +17,53 @@ router.get('/', (req, res) => {
 router.post('/new', (req, res) => {
 
   const {user} = req.body
-  const {password, username} = user
+  const {password, username, email} = user
 
-  User.findOne({username: user.username})
+  if(!validator.isEmail(email))
+    return res.json({err: 'Enter valid e-mail.'})
+
+  console.log(email)
+  console.log(validator.isEmail(email))
+
+  User.findOne({email})
     .then(user => {
       if(user)
-        return res.json({err: 'Already exists.'})
+        return res.json({err: 'User already exists.'})
 
-      bcrypt.genSalt(10)
-        .then(salt => {      
-          return bcrypt.hash(password, salt)
-        })
-        .then(hash => {
-
-          new User({
-            username,
-            password: hash
-          })
-          .save()
+      else
+        User.findOne({username})
           .then(user => {
-            console.log(user)
-            new UserData({ user: user._id })
-              .save()
-              .then(account => console.log(account))
-              .catch(err => console.log(err))
-            res.json({
-              id: user._id,
-              username
+            if(user)
+              return res.json({err: 'Username taken.'})
+            else
+              return bcrypt.genSalt(10)
+          })
+          .then(salt => {      
+            return bcrypt.hash(password, salt)
+          })
+          .then(hash => {
+
+            new User({
+              username,
+              password: hash,
+              email
             })
+            .save()
+            .then(user => {
+              console.log(user)
+              new UserData({ user: user._id })
+                .save()
+                .then(account => console.log(account))
+                .catch(err => console.log(err))
+              res.json({
+                id: user._id,
+                username
+              })
+            })
+            .catch(err => console.log(err))
           })
           .catch(err => console.log(err))
-        })
-        .catch(err => console.log(err))
-        })
+          })
     .catch(err => console.log(err))
 })
 
