@@ -60,13 +60,22 @@ router.post('/like', passport.authenticate('jwt', {session: false}), async (req,
   const trackID = await getTrackID(songDetails, musicProvider)
   const {user} = req
 
-  UserData.findOne({user: user.id})
+  await UserData.findOne({user: user.id})
     .then(userdata => userdata.liked.filter(song => song.trackID.equals(trackID)).length === 0
       ? saveSong(user.id, trackID)
       : removeSong(user.id, trackID))
-    .then(account => Song.find({'_id': { $in: account.liked.map(item => item.trackID) }}))
-    .then(songs => res.json(songs))
-    .catch(err => console.log(err))
+
+  UserData.findOne({user: user.id})
+    .select('liked')
+    .populate('liked.trackID')
+    .exec(function (err, userdata) {
+      if(err)
+        return console.log(err)
+      const savedTracks = userdata.liked.map(track => {
+        return {savedOn: track.savedOn, song: track.trackID}
+      })
+      res.json(savedTracks)
+    })
 })
 
 router.get('/liked-music', passport.authenticate('jwt', {session: false}), (req, res) => {
@@ -74,16 +83,16 @@ router.get('/liked-music', passport.authenticate('jwt', {session: false}), (req,
   const {user} = req
 
   UserData.findOne({user: mongoose.Types.ObjectId(user.id)})
-    .then(res => {
-      return res.liked.map(item => item.trackID)
+    .select('liked')
+    .populate('liked.trackID')
+    .exec(function (err, user) {
+      if(err)
+        return console.log(err)
+      const savedTracks = user.liked.map(track => {
+        return {savedOn: track.savedOn, song: track.trackID}
+      })
+      res.json(savedTracks)
     })
-    .then(trackIDs => {
-      console.log(trackIDs)
-      return Song.find({'_id': { $in: trackIDs}})
-    })
-    .then(songs => res.json(songs))
-    .catch(err => console.log(err))
-
 })
 
 module.exports = router
