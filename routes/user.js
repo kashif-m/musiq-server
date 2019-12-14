@@ -22,9 +22,6 @@ router.post('/new', (req, res) => {
   if(!validator.isEmail(email))
     return res.json({err: 'Enter valid e-mail.'})
 
-  console.log(email)
-  console.log(validator.isEmail(email))
-
   User.findOne({email})
     .then(user => {
       if(user)
@@ -50,7 +47,6 @@ router.post('/new', (req, res) => {
             })
             .save()
             .then(user => {
-              console.log(user)
               new UserData({ user: user._id })
                 .save()
                 .then(account => console.log(account))
@@ -70,7 +66,6 @@ router.post('/new', (req, res) => {
 router.post('/login', (req, res) => {
 
   const {user} = req.body
-  console.log(user)
   const {username, password} = user
 
   User.findOne({username})

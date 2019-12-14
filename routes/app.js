@@ -14,7 +14,6 @@ router.post('/token', (req, res) => {
 		'Content-Type': 'application/x-www-form-urlencoded',
 		'Authorization': `Basic ${auth}`
 	}
-	console.log(grant_type, code, refresh_token)
 	axios.post('https://accounts.spotify.com/api/token', null, {headers,
 		params: {
 			grant_type,

@@ -94,7 +94,6 @@ router.get('/liked-music', passport.authenticate('jwt', {session: false}), (req,
       const savedTracks = user.liked.map(track => {
         return {savedOn: track.savedOn, song: track.trackID}
       })
-      console.log(savedTracks)
       res.json(savedTracks)
     })
 })

@@ -1,5 +1,5 @@
 
-const axios = require('axios')
+const path = require('path')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const express = require('express')
@@ -32,6 +32,12 @@ app.use('/user', userRoutes)
 app.use('/user-data', userDataRoutes)
 app.use('/local', localRoutes)
 app.use('/', appRoutes)
+
+// serve front-end
+app.get('/', (req, res) => {
+  app.use(express.static('build'))
+  res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+})
 
 // host
 const port = process.env.PORT || 5000
