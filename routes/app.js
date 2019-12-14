@@ -8,7 +8,7 @@ const spotify = require('../config/keys').spotify
 
 router.post('/token', (req, res) => {
 
-	const {code, grant_type, refresh_token} = req.body
+	const {code, grant_type, refresh_token, redirect_uri} = req.body
 	const auth = Buffer.from(`${spotify.clientID}:${spotify.clientSecret}`).toString('base64')
 	const headers = {
 		'Content-Type': 'application/x-www-form-urlencoded',
@@ -19,11 +19,10 @@ router.post('/token', (req, res) => {
 			grant_type,
 			refresh_token,
 			code,
-			redirect_uri: 'http://localhost:8080'
+			redirect_uri
 		}})
 		.then(spotifyRes => {
 			res.json(spotifyRes.data)
-			console.log(spotifyRes.data)
 		})
 		.catch(err => res.json(err.response.data))
 })
