@@ -11,8 +11,11 @@ const router = express.Router()
 
 const getTrackID = (songDetails, musicProvider) => {
 
-  let ID = false
-  const uniqueid = songDetails.etag.substring(1, songDetails.etag.length - 1)
+  let ID = false, uniqueid = false
+  if(musicProvider === 'youtube')
+    uniqueid = songDetails.etag.substring(1, songDetails.etag.length - 1)
+  else if(musicProvider === 'device')
+    uniqueid = songDetails
 
   return Song.findOne({
     from: musicProvider,
@@ -91,6 +94,7 @@ router.get('/liked-music', passport.authenticate('jwt', {session: false}), (req,
       const savedTracks = user.liked.map(track => {
         return {savedOn: track.savedOn, song: track.trackID}
       })
+      console.log(savedTracks)
       res.json(savedTracks)
     })
 })
